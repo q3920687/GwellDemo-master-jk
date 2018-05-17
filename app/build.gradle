@@ -1,0 +1,132 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao' // apply plugin
+apply plugin: 'org.quanqi.pgyer'
+//apply plugin: 'im.fir.plugin.gradle'
+//apply plugin: 'com.neenbedankt.android-apt'
+//apply plugin: 'android-apt'
+
+ext {
+    surpportlib = '26.1.0'
+}
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.gwelldemo"
+        minSdkVersion 19
+        versionCode 1
+        versionName "00.00.00.01"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
+//        jackOptions {
+//            enabled true
+//        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    signingConfigs {
+        release {
+            // default keystore file, PLZ config file path in local.properties
+            Properties properties = new Properties()
+            //加载本地local.properties文件
+            if (rootProject.file('local.properties').exists()) {
+                properties.load(rootProject.file("local.properties").newDataInputStream())
+                if (properties.get("storeFile") != null) {
+                    storeFile file(properties.get("storeFile"))
+                    storePassword properties.get("storePassword")
+                    keyAlias properties.get("keyAlias")
+                    keyPassword properties.get("keyPassword")
+                }
+            } else if (System.getenv("FLOW_CERTIFICATE_FILE") != null) {
+                storeFile file(System.getenv("FLOW_CERTIFICATE_FILE"))
+                storePassword System.getenv("FLOW_KEYSTORE_PASS")
+                keyAlias System.getenv("FLOW_ALIAS_NAME")
+                keyPassword System.getenv("FLOW_ALIAS_PASS")
+            }
+        }
+    }
+//    fir{
+//        //必填 上传 fir.im apk 字段，否则无法上传 APP 到 fir.im
+//        apiToken'58e870036c7798894efce2037c563ab6'
+//        //可选 上传fir.im 中显示的changelog
+//        changeLog '日志测试'
+//    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+            //对齐优化设置为true，否则找不到该task (默认不写也是true)
+            zipAlignEnabled true
+        }
+        release {
+            minifyEnabled false
+            zipAlignEnabled true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //对齐优化设置为true，否则找不到该task (默认不写也是true)
+            zipAlignEnabled true
+        }
+
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    greendao {
+        //数据库版本
+        schemaVersion 2
+    }
+    productFlavors {
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    implementation 'com.android.support:appcompat-v7:' + surpportlib
+    //SDK
+    implementation 'com.p2p.core:p2p-core:0.4.4'
+    //全景相关库，如果没有全景业务，不要集成这部分相关的内容（会使APP体积明显加大）
+    implementation 'com.jwkj:gwell-pano:1.4.0'
+    //以下都是非SDK必需的依赖
+    implementation 'me.drakeet.multitype:multitype:3.4.2', {
+        exclude group: 'com.android.support'
+    }
+    implementation 'com.android.support:design:' + surpportlib
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    //Butterknife 再Fir插件下（插入了apt插件，不可使用annotationProcessor）
+    //annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    implementation 'com.hwangjr.rxbus:rxbus:2.0.0'
+    implementation 'com.trello.rxlifecycle2:rxlifecycle:2.2.1'
+    implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.1'
+    testImplementation 'junit:junit:4.12'
+    //第三方Toast
+    implementation 'com.github.GrenderG:Toasty:1.2.8'
+    //Glide
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
+    //cardview
+    implementation 'com.android.support:cardview-v7:' + surpportlib
+    implementation 'com.github.Hitomis:CrazyShadow:v1.0.1'
+    //greenDao
+    implementation 'org.greenrobot:greendao:3.2.2'
+    // add library
+    //浏览器中查看sqlite数据库和sp文件内容，用法浏览器输入 http://手机ip地址:8080 即可（注:手机与电脑需在同一个局域网）
+    debugImplementation 'com.amitshekhar.android:debug-db:1.0.2'
+    implementation 'com.blankj:utilcode:1.4.1'
+    implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.5@aar'
+    //基于nio的udp发送-接收器
+    implementation 'com.github.huangdali:UDPSender:v1.3.9'
+    //错误级别日志打印，带在logcat中定位到打印处
+    implementation 'com.github.huangdali:ELog:v1.3.3'
+    //局域网搜索管理器
+    implementation 'com.github.jwkj:ShakManger:v1.0.1'
+    //第三方Dialog
+    //    compile 'com.afollestad.material-dialogs:commons:0.9.5.0'
+}
+
